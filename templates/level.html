@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Level Path</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-accent: linear-gradient(120deg, #0b1624, #111b2c);
+            --card: #131a24;
+            --card-strong: #192233;
+            --line: #4fd1c5;
+            --line-soft: rgba(79, 209, 197, 0.25);
+            --level: #8ad7ff;
+            --chapter: #ffb86c;
+            --treasure: #ffd166;
+            --text: #f7f9fc;
+            --muted: #9fb3c8;
+            --shadow: 0 12px 45px rgba(0, 0, 0, 0.35);
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 20%, rgba(79, 209, 197, 0.08), transparent 28%),
+                        radial-gradient(circle at 80% 10%, rgba(138, 215, 255, 0.07), transparent 25%),
+                        var(--bg);
+        }
+
+        main {
+            padding: 28px 18px 120px;
+            width: min(1080px, 100%);
+            margin: 0 auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            font-size: clamp(26px, 3vw, 36px);
+            letter-spacing: -0.02em;
+        }
+
+        .title-block p {
+            margin: 6px 0 0;
+            color: var(--muted);
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+        }
+
+        .pill:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.18); box-shadow: var(--shadow); }
+        .pill:focus-visible { outline: 2px solid #4fd1c5; outline-offset: 3px; }
+
+        .path-shell {
+            position: relative;
+            background: var(--bg-accent);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 26px 16px 32px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .path-legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .legend-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .map-track {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            padding: 14px 6px 6px;
+        }
+
+        .spine {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            transform: translateX(-50%);
+            background: linear-gradient(180deg, rgba(79, 209, 197, 0.6), rgba(138, 215, 255, 0.15));
+            filter: drop-shadow(0 0 12px rgba(79, 209, 197, 0.45));
+        }
+
+        .node-row {
+            position: relative;
+            min-height: 120px;
+        }
+
+        .node-dot {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 18px;
+            height: 18px;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            background: var(--line);
+            box-shadow: 0 0 0 6px var(--line-soft), 0 8px 24px rgba(79, 209, 197, 0.4);
+        }
+
+        .node-card {
+            position: relative;
+            width: calc(50% - 36px);
+            max-width: 420px;
+            padding: 16px 18px;
+            border-radius: var(--radius);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: var(--card);
+            box-shadow: var(--shadow);
+            transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+        }
+
+        .node-card::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 28px;
+            height: 2px;
+            background: var(--line);
+        }
+
+        .node-row.side-left .node-card { margin-left: auto; text-align: right; }
+        .node-row.side-left .node-card::before { right: -28px; }
+        .node-row.side-right .node-card { margin-right: auto; }
+        .node-row.side-right .node-card::before { left: -28px; }
+
+        .node-card:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.18); background: var(--card-strong); }
+
+        .eyebrow {
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .node-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 4px;
+        }
+
+        .node-sub {
+            margin: 0 0 12px;
+            color: var(--muted);
+        }
+
+        .badge-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            font-size: 12px;
+            letter-spacing: 0.02em;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .type-level { border-left: 4px solid var(--level); }
+        .type-chapter { border-left: 4px solid var(--chapter); }
+        .type-treasure { border-left: 4px solid var(--treasure); }
+
+        .type-level .badge { background: rgba(138, 215, 255, 0.12); color: var(--level); }
+        .type-chapter .badge { background: rgba(255, 184, 108, 0.12); color: var(--chapter); }
+        .type-treasure .badge { background: rgba(255, 209, 102, 0.14); color: var(--treasure); }
+
+        @media (max-width: 720px) {
+            main { padding: 22px 14px 120px; }
+            .node-card { width: calc(100% - 36px); max-width: none; }
+            .node-row { min-height: 0; }
+            .node-row.side-left .node-card,
+            .node-row.side-right .node-card { margin: 0 auto; text-align: left; }
+            .node-card::before { display: none; }
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(13, 17, 23, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: var(--text);
+            text-align: center;
+            flex: 0 0 auto;
+            font-size: 16px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            transition: background 120ms ease, transform 120ms ease;
+        }
+
+        .bottom-nav a:hover { background: rgba(255, 255, 255, 0.06); transform: translateY(-2px); }
+        .bottom-nav a:focus-visible { outline: 2px solid #4fd1c5; outline-offset: 4px; }
+
+        .more-coming {
+            margin: 18px auto 0;
+            padding: 12px 14px;
+            width: min(640px, 100%);
+            text-align: center;
+            color: var(--muted);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.02);
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="page-heading">
+            <div class="title-block">
+                <h1>Learning Path</h1>
+                <p>8 chapters · 5 levels each · treasure chest after every chapter</p>
+            </div>
+            <a class="pill" href="#map" aria-label="Jump to your level path">View Path</a>
+        </div>
+
+        <section id="map" class="path-shell" aria-label="Level path map">
+            <div class="path-legend" aria-hidden="true">
+                <span class="legend-dot" style="background: var(--chapter);"></span> Chapter
+                <span class="legend-dot" style="background: var(--level);"></span> Level
+                <span class="legend-dot" style="background: var(--treasure);"></span> Treasure
+            </div>
+            <div class="spine"></div>
+            <div id="mapTrack" class="map-track" role="list"></div>
+        </section>
+
+        <div class="more-coming" aria-live="polite">More levels coming soon.</div>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+        <a href="{% url 'level' %}">Level Page</a>
+        <a href="{% url 'practice' %}">Practice Page</a>
+        <a href="{% url 'home' %}">Home Page</a>
+        <a href="{% url 'dictionary' %}">Dictionary Page</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+
+    <script>
+        (function buildPath() {
+            const track = document.getElementById('mapTrack');
+            if (!track) return;
+
+            const nodes = [];
+            let levelNumber = 1;
+
+            for (let chapter = 1; chapter <= 8; chapter++) {
+                const startLevel = levelNumber;
+                const endLevel = levelNumber + 4;
+
+                nodes.push({
+                    type: 'chapter',
+                    title: `Chapter ${chapter}`,
+                    subtitle: `Unlocks Levels ${startLevel}-${endLevel}`,
+                    badge: 'Milestone',
+                    chapterNum: chapter
+                });
+
+                for (let i = 0; i < 5; i++) {
+                    nodes.push({
+                        type: 'level',
+                        title: `Level ${levelNumber}`,
+                        subtitle: 'Practice and progress',
+                        badge: 'Core Level'
+                    });
+                    levelNumber += 1;
+                }
+
+                nodes.push({
+                    type: 'treasure',
+                    title: `Treasure ${chapter}`,
+                    subtitle: 'Claim your reward',
+                    badge: 'Chest'
+                });
+            }
+
+            nodes.forEach((node, index) => {
+                const side = index % 2 === 0 ? 'side-left' : 'side-right';
+
+                const row = document.createElement('div');
+                row.className = `node-row ${side}`;
+                row.setAttribute('role', 'listitem');
+
+                const dot = document.createElement('div');
+                dot.className = 'node-dot';
+                dot.setAttribute('aria-hidden', 'true');
+
+                const card = document.createElement('article');
+                card.className = `node-card type-${node.type}`;
+                card.setAttribute('tabindex', '0');
+                card.setAttribute('aria-label', `${node.title}: ${node.subtitle}`);
+
+                card.innerHTML = `
+                    <div class="eyebrow">${node.type === 'level' ? 'Level' : node.type === 'chapter' ? 'Chapter' : 'Treasure'}</div>
+                    <p class="node-title">${node.title}</p>
+                    <p class="node-sub">${node.subtitle}</p>
+                    <div class="badge-row">
+                        <span class="badge">${node.badge}</span>
+                        <span class="badge">Tap to continue</span>
+                    </div>
+                `;
+
+                // Make chapter cards clickable
+                if (node.type === 'chapter') {
+                    card.style.cursor = 'pointer';
+                    card.addEventListener('click', () => {
+                        window.location.href = `/chapter/${node.chapterNum}/`;
+                    });
+                    card.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            window.location.href = `/chapter/${node.chapterNum}/`;
+                        }
+                    });
+                }
+
+                row.appendChild(dot);
+                row.appendChild(card);
+                track.appendChild(row);
+            });
+        })();
+    </script>
+</body>
+</html>

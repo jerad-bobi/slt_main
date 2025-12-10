@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chapter {{ chapter_number }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d1117;
+            --bg-accent: linear-gradient(120deg, #0b1624, #111b2c);
+            --card: #131a24;
+            --card-strong: #192233;
+            --line: #4fd1c5;
+            --text: #f7f9fc;
+            --muted: #9fb3c8;
+            --shadow: 0 12px 45px rgba(0, 0, 0, 0.35);
+            --radius: 14px;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text);
+            background: radial-gradient(circle at 20% 20%, rgba(79, 209, 197, 0.08), transparent 28%),
+                        radial-gradient(circle at 80% 10%, rgba(138, 215, 255, 0.07), transparent 25%),
+                        var(--bg);
+        }
+
+        main {
+            padding: 28px 18px 120px;
+            width: min(1080px, 100%);
+            margin: 0 auto;
+        }
+
+        .page-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .title-block h1 {
+            margin: 0;
+            font-size: clamp(28px, 3vw, 40px);
+            letter-spacing: -0.02em;
+        }
+
+        .title-block p {
+            margin: 8px 0 0;
+            color: var(--muted);
+            font-size: 16px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border-radius: 999px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text);
+            font-weight: 600;
+            text-decoration: none;
+            transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+        }
+
+        .back-link:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.18); box-shadow: var(--shadow); }
+        .back-link:focus-visible { outline: 2px solid #4fd1c5; outline-offset: 3px; }
+
+        .chapter-content {
+            position: relative;
+            background: var(--bg-accent);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 18px;
+            padding: 28px 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .syllabus-intro {
+            margin-bottom: 28px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .syllabus-intro h2 {
+            margin: 0 0 12px;
+            font-size: 24px;
+            color: var(--text);
+        }
+
+        .syllabus-intro p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .lessons-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .lesson-card {
+            background: var(--card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius);
+            padding: 18px;
+            transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+            position: relative;
+            overflow: visible;
+        }
+
+        .lesson-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(255, 255, 255, 0.18);
+            background: var(--card-strong);
+        }
+
+        .letter-card { cursor: pointer; }
+
+        .letter-pop {
+            position: absolute;
+            left: 50%;
+            top: -10px;
+            transform: translate(-50%, -105%);
+            width: 260px;
+            background: var(--card-strong);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 140ms ease, transform 140ms ease;
+            z-index: 20;
+        }
+
+        .letter-card:hover .letter-pop,
+        .letter-card:focus-within .letter-pop {
+            opacity: 1;
+            transform: translate(-50%, -115%);
+            pointer-events: auto;
+        }
+
+        .lesson-number {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4fd1c5, #8ad7ff);
+            color: #0b1624;
+            font-weight: 700;
+            text-align: center;
+            line-height: 32px;
+            margin-bottom: 12px;
+        }
+
+        .lesson-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0 0 8px;
+            color: var(--text);
+        }
+
+        .lesson-desc {
+            margin: 0 0 12px;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: linear-gradient(135deg, #4fd1c5, #8ad7ff);
+            color: #0b1624;
+            font-weight: 700;
+            text-decoration: none;
+            transition: transform 120ms ease, filter 120ms ease;
+        }
+
+        .cta-button:hover { transform: translateY(-2px); filter: brightness(1.08); }
+        .cta-button:focus-visible { outline: 2px solid #4fd1c5; outline-offset: 2px; }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(13, 17, 23, 0.9);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            padding: 10px 12px;
+            backdrop-filter: blur(10px);
+        }
+
+        .bottom-nav a {
+            text-decoration: none;
+            color: var(--text);
+            text-align: center;
+            flex: 0 0 auto;
+            font-size: 16px;
+            padding: 8px 10px;
+            border-radius: 10px;
+            transition: background 120ms ease, transform 120ms ease;
+        }
+
+        .bottom-nav a:hover { background: rgba(255, 255, 255, 0.06); transform: translateY(-2px); }
+        .bottom-nav a:focus-visible { outline: 2px solid #4fd1c5; outline-offset: 4px; }
+
+        @media (max-width: 720px) {
+            main { padding: 22px 14px 120px; }
+            .page-heading { flex-direction: column; align-items: flex-start; }
+            .lessons-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <div class="page-heading">
+            <div class="title-block">
+                <h1>Chapter {{ chapter_number }}: Learning {{ chapter_letter }}</h1>
+                <p>Master the fundamentals of {{ chapter_letter }} in ASL</p>
+            </div>
+            <a class="back-link" href="{% url 'level' %}" aria-label="Back to level path">← Back to Path</a>
+        </div>
+
+        <section class="chapter-content">
+            <div class="syllabus-intro">
+                <h2>Chapter Overview</h2>
+                <p>Start with the ASL alphabet, core responses, and a few everyday phrases. Hover to preview, focus to practice.</p>
+            </div>
+
+            <h3 style="color: var(--text); margin: 24px 0 12px; font-size: 18px;">Alphabet (A–Z)</h3>
+            <div class="lessons-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+                {% for item in chapter_resources.alphabet %}
+                <article class="lesson-card letter-card" tabindex="0">
+                    <div class="lesson-number">{{ item.title }}</div>
+                    <h4 class="lesson-title">Fingerspell {{ item.title }}</h4>
+                    <div class="letter-pop">
+                        {% if item.video %}
+                        <video controls width="100%" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background:#000;">
+                            <source src="{{ item.video }}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <p class="lesson-desc" style="margin-top:8px;">Video: SignASL ({{ item.title }}).</p>
+                        {% else %}
+                        <p class="lesson-desc" style="margin:0;">Video unavailable right now.</p>
+                        {% endif %}
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+
+            <h3 style="color: var(--text); margin: 24px 0 12px; font-size: 18px;">Core Responses</h3>
+            <div class="lessons-grid">
+                {% for item in chapter_resources.responses %}
+                <article class="lesson-card">
+                    <div class="lesson-number">{{ forloop.counter }}</div>
+                    <h4 class="lesson-title">{{ item.title }}</h4>
+                    {% if item.video %}
+                    <video controls width="100%" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background:#000;">
+                        <source src="{{ item.video }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="lesson-desc" style="margin-top:8px;">SignASL clip.</p>
+                    {% else %}
+                    <p class="lesson-desc" style="margin-top:8px;">Video unavailable right now.</p>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+
+            <h3 style="color: var(--text); margin: 24px 0 12px; font-size: 18px;">Example Phrases</h3>
+            <div class="lessons-grid">
+                {% for phrase in chapter_resources.phrases %}
+                <article class="lesson-card phrase-card" tabindex="0"
+                    {% if phrase.segment_urls %}
+                        data-playlist="{{ phrase.segment_urls|join:'|' }}"
+                    {% endif %}
+                >
+                    <div class="lesson-number">{{ forloop.counter }}</div>
+                    <h4 class="lesson-title">{{ phrase.title }}</h4>
+                    {% if phrase.video %}
+                    <video controls width="100%" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background:#000;">
+                        <source src="{{ phrase.video }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <p class="lesson-desc" style="margin-top:8px;">SignASL clip.</p>
+                    {% elif phrase.segment_urls %}
+                    <div class="phrase-player" aria-label="Sequential phrase videos">
+                        <video controls width="100%" style="border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); background:#000;"></video>
+                        <p class="lesson-desc" style="margin-top:8px;">Sequential clips ({{ phrase.segment_urls|length }}).</p>
+                    </div>
+                    {% else %}
+                    <p class="lesson-desc" style="margin-top:8px;">Video unavailable right now.</p>
+                    {% endif %}
+                </article>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+        <a href="{% url 'level' %}">Level Page</a>
+        <a href="{% url 'practice' %}">Practice Page</a>
+        <a href="{% url 'home' %}">Home Page</a>
+        <a href="{% url 'dictionary' %}">Dictionary Page</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+    <script>
+        // Autoplay letter videos on hover/focus with a 2s delay before looping
+        (function () {
+            const cards = document.querySelectorAll('.letter-card');
+            cards.forEach((card) => {
+                const video = card.querySelector('video');
+                if (!video) return;
+
+                let timer = null;
+
+                const startLoop = () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                    }, 2000);
+                };
+
+                const playNow = () => {
+                    clearTimeout(timer);
+                    video.muted = true; // allow autoplay on hover
+                    video.play().catch(() => {});
+                };
+
+                const stopAndReset = () => {
+                    clearTimeout(timer);
+                    video.pause();
+                    video.currentTime = 0;
+                };
+
+                video.addEventListener('ended', startLoop);
+                card.addEventListener('mouseenter', playNow);
+                card.addEventListener('mouseleave', stopAndReset);
+                card.addEventListener('focus', playNow);
+                card.addEventListener('blur', stopAndReset);
+            });
+        })();
+
+        // Autoplay non-letter single videos (responses, phrase single clips) on hover/focus with 2s loop delay
+        (function () {
+            const cards = document.querySelectorAll('.lesson-card');
+            cards.forEach((card) => {
+                if (card.classList.contains('letter-card')) return;
+
+                // Skip playlist players; they are handled separately
+                const video = card.querySelector('video');
+                if (!video || video.closest('.phrase-player')) return;
+
+                let timer = null;
+
+                const startLoop = () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        video.currentTime = 0;
+                        video.play().catch(() => {});
+                    }, 2000);
+                };
+
+                const playNow = () => {
+                    clearTimeout(timer);
+                    video.muted = true;
+                    video.play().catch(() => {});
+                };
+
+                const stopAndReset = () => {
+                    clearTimeout(timer);
+                    video.pause();
+                    video.currentTime = 0;
+                };
+
+                video.addEventListener('ended', startLoop);
+                card.addEventListener('mouseenter', playNow);
+                card.addEventListener('mouseleave', stopAndReset);
+                card.addEventListener('focus', playNow);
+                card.addEventListener('blur', stopAndReset);
+            });
+        })();
+
+        // Sequential phrase playback when a full phrase video is missing
+        (function () {
+            const phraseCards = document.querySelectorAll('.phrase-card');
+            phraseCards.forEach((card) => {
+                const playlistAttr = card.getAttribute('data-playlist');
+                if (!playlistAttr) return;
+                const sources = playlistAttr.split('|').filter(Boolean);
+                if (!sources.length) return;
+
+                const player = card.querySelector('.phrase-player video');
+                if (!player) return;
+
+                let idx = 0;
+                let timer = null;
+
+                const playIndex = (i) => {
+                    idx = i % sources.length;
+                    player.src = sources[idx];
+                    player.load();
+                    player.muted = true; // allow autoplay on hover/focus
+                    player.play().catch(() => {});
+                };
+
+                const onEnded = () => {
+                    clearTimeout(timer);
+                    timer = setTimeout(() => {
+                        playIndex(idx + 1);
+                    }, 2000);
+                };
+
+                const start = () => {
+                    clearTimeout(timer);
+                    playIndex(0);
+                };
+
+                const stop = () => {
+                    clearTimeout(timer);
+                    player.pause();
+                    player.currentTime = 0;
+                };
+
+                player.addEventListener('ended', onEnded);
+                card.addEventListener('mouseenter', start);
+                card.addEventListener('mouseleave', stop);
+                card.addEventListener('focus', start);
+                card.addEventListener('blur', stop);
+            });
+        })();
+    </script>
+</body>
+</html>
