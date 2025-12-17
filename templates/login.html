@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
+</head>
+<body>
+    <main>
+        <div class="page-heading">
+            <div class="title-block">
+                <h1>Welcome Back</h1>
+                <p>Log in to continue your learning path.</p>
+            </div>
+            <a class="pill" href="{% url 'profile' %}" aria-label="Back to profile">Back</a>
+        </div>
+
+        <section class="login-shell" aria-label="Login">
+            <form method="post" class="form" novalidate>
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next|default:'' }}">
+
+                {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+
+                <div class="field">
+                    <label for="username">Username or Email</label>
+                    <input id="username" name="username" type="text" autocomplete="username" value="{{ values.username|default:'' }}" required>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required>
+                </div>
+
+                <button class="btn" type="submit">Log in</button>
+                <p class="hint">No account yet? <a class="hint-link" href="{% url 'register' %}">Register</a></p>
+            </form>
+        </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+        <a href="{% url 'level' %}">Level Page</a>
+        <a href="{% url 'practice' %}">Practice Page</a>
+        <a href="{% url 'home' %}">Home Page</a>
+        <a href="{% url 'dictionary' %}">Dictionary Page</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+
+    <script src="{% static 'js/login.js' %}" defer></script>
+</body>
+</html>

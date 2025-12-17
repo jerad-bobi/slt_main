@@ -2,11 +2,20 @@ import json
 import re
 from urllib import error, request as urlrequest
 
-from django.shortcuts import render
+from dataclasses import dataclass
+
+from django.shortcuts import render, redirect
 from django.template.loader import select_template
 from django.http import JsonResponse
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
+from django.contrib.auth.hashers import check_password, make_password
+from django.db import DatabaseError, connection
+from django.utils.http import url_has_allowed_host_and_scheme
+
+
+@dataclass(frozen=True)
+class UserAccount:
+    username: str
+    email: str
 
 
 def _fetch_definitions(word: str):
@@ -188,7 +197,22 @@ def chapter(request, chapter_num):
 
 
 def profile(request):
-    return render(request, 'profile.html')
+    account = None
+    username = request.session.get('ua_username')
+    if username:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT username, email FROM user_account WHERE username = %s LIMIT 1",
+                    [username],
+                )
+                row = cursor.fetchone()
+                if row:
+                    account = UserAccount(username=row[0], email=row[1])
+        except DatabaseError:
+            account = None
+
+    return render(request, 'profile.html', {'account': account})
 
 
 def register(request):
@@ -206,13 +230,31 @@ def register(request):
         errors['username'] = 'Username is required.'
     elif len(username) < 3:
         errors['username'] = 'Username must be at least 3 characters.'
-    elif User.objects.filter(username=username).exists():
-        errors['username'] = 'That username is already taken.'
+    else:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM user_account WHERE username = %s LIMIT 1",
+                    [username],
+                )
+                if cursor.fetchone():
+                    errors['username'] = 'That username is already taken.'
+        except DatabaseError:
+            errors['username'] = 'Database error while checking username.'
 
     if not email:
         errors['email'] = 'Email is required.'
-    elif User.objects.filter(email=email).exists():
-        errors['email'] = 'That email is already registered.'
+    else:
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute(
+                    "SELECT 1 FROM user_account WHERE email = %s LIMIT 1",
+                    [email],
+                )
+                if cursor.fetchone():
+                    errors['email'] = 'That email is already registered.'
+        except DatabaseError:
+            errors['email'] = 'Database error while checking email.'
 
     if not password:
         errors['password'] = 'Password is required.'
@@ -232,13 +274,99 @@ def register(request):
             },
         )
 
-    User.objects.create_user(username=username, email=email, password=password)
+    try:
+        hashed = make_password(password)
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO user_account (username, email, password) VALUES (%s, %s, %s)",
+                [username, email, hashed],
+            )
+        request.session['ua_username'] = username
+        return redirect('profile')
+    except DatabaseError as e:
+        message = 'Could not create account. Please check the database/table and try again.'
+        raw = str(e)
+        if 'Data too long' in raw and 'password' in raw:
+            message = (
+                "Could not create account because the database column `user_account.password` is too short for a secure password hash. "
+                "Update that column to VARCHAR(255) (or larger) and try again."
+            )
+        elif raw:
+            message = f"Could not create account: {raw}"
+        return render(
+            request,
+            'register.html',
+            {
+                'errors': {'database': message},
+                'values': {'username': username, 'email': email},
+            },
+        )
 
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
 
-    return render(request, 'profile.html')
+def login_view(request):
+    next_url = (request.POST.get('next') or request.GET.get('next') or '').strip()
+    safe_next = next_url if url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=False) else ''
+
+    if request.method == 'GET':
+        return render(request, 'login.html', {'next': safe_next})
+
+    username_or_email = (request.POST.get('username') or '').strip()
+    password = request.POST.get('password') or ''
+
+    if not username_or_email or not password:
+        return render(
+            request,
+            'login.html',
+            {
+                'error': 'Please enter your username/email and password.',
+                'values': {'username': username_or_email},
+                'next': safe_next,
+            },
+        )
+
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "SELECT username, email, password FROM user_account WHERE username = %s OR email = %s LIMIT 1",
+                [username_or_email, username_or_email],
+            )
+            row = cursor.fetchone()
+
+        if not row:
+            return render(
+                request,
+                'login.html',
+                {
+                    'error': 'Invalid credentials. Please try again.',
+                    'values': {'username': username_or_email},
+                    'next': safe_next,
+                },
+            )
+
+        username, _email, stored_hash = row
+        if not check_password(password, stored_hash):
+            return render(
+                request,
+                'login.html',
+                {
+                    'error': 'Invalid credentials. Please try again.',
+                    'values': {'username': username_or_email},
+                    'next': safe_next,
+                },
+            )
+
+        request.session['ua_username'] = username
+        return redirect(safe_next or 'profile')
+    except DatabaseError:
+        return render(
+            request,
+            'login.html',
+            {
+                'error': 'Database error while logging in. Please try again.',
+                'values': {'username': username_or_email},
+                'next': safe_next,
+            },
+        )
 
 
 def asl_video_api(request):

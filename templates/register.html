@@ -23,6 +23,8 @@
             <form method="post" class="form" novalidate>
                 {% csrf_token %}
 
+                {% if errors.database %}<p class="error" role="alert">{{ errors.database }}</p>{% endif %}
+
                 <div class="field">
                     <label for="username">Username</label>
                     <input id="username" name="username" type="text" autocomplete="username" value="{{ values.username|default:'' }}" required>

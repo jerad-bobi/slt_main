@@ -1,0 +1,179 @@
+:root {
+    --bg: #0d1117;
+    --bg-accent: linear-gradient(120deg, #0b1624, #111b2c);
+    --card: #131a24;
+    --card-strong: #192233;
+    --accent: #4fd1c5;
+    --accent-2: #8ad7ff;
+    --text: #f7f9fc;
+    --muted: #9fb3c8;
+    --stroke: rgba(255, 255, 255, 0.08);
+    --shadow: 0 12px 45px rgba(0, 0, 0, 0.35);
+    --radius: 14px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    color: var(--text);
+    background: radial-gradient(circle at 20% 20%, rgba(79, 209, 197, 0.08), transparent 28%),
+                radial-gradient(circle at 80% 10%, rgba(138, 215, 255, 0.07), transparent 25%),
+                var(--bg);
+}
+
+main {
+    padding: 32px 18px 120px;
+    width: min(820px, 100%);
+    margin: 0 auto;
+}
+
+.page-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.title-block h1 {
+    margin: 0;
+    font-size: clamp(26px, 3vw, 36px);
+    letter-spacing: -0.02em;
+}
+
+.title-block p {
+    margin: 6px 0 0;
+    color: var(--muted);
+}
+
+.pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 999px;
+    padding: 10px 16px;
+    border: 1px solid var(--stroke);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text);
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.pill:hover { transform: translateY(-2px); border-color: rgba(255, 255, 255, 0.18); box-shadow: var(--shadow); }
+.pill:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.login-shell {
+    background: var(--bg-accent);
+    border: 1px solid var(--stroke);
+    border-radius: 18px;
+    box-shadow: var(--shadow);
+    padding: 22px;
+    opacity: 0;
+    transform: translateY(14px);
+    transition: opacity 220ms ease, transform 220ms ease;
+}
+
+.login-shell.is-visible { opacity: 1; transform: translateY(0); }
+
+.form {
+    display: grid;
+    gap: 12px;
+}
+
+.field {
+    display: grid;
+    gap: 8px;
+}
+
+label {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+input {
+    width: 100%;
+    padding: 12px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: var(--card);
+    color: var(--text);
+    font-size: 16px;
+}
+
+input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.error {
+    margin: 0;
+    color: #ffb4b4;
+    font-size: 13px;
+}
+
+.btn {
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: #0b1624;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 120ms ease, filter 120ms ease;
+}
+
+.btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+.hint {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.hint-link {
+    color: var(--text);
+    text-decoration: none;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.28);
+}
+
+.hint-link:hover { border-bottom-color: rgba(255, 255, 255, 0.55); }
+
+.bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(13, 17, 23, 0.9);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 10px 12px;
+    backdrop-filter: blur(10px);
+}
+
+.bottom-nav a {
+    text-decoration: none;
+    color: var(--text);
+    text-align: center;
+    flex: 0 0 auto;
+    font-size: 16px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    transition: background 120ms ease, transform 120ms ease;
+}
+
+.bottom-nav a:hover { background: rgba(255, 255, 255, 0.06); transform: translateY(-2px); }
+.bottom-nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+@media (max-width: 720px) {
+    main { padding: 22px 14px 120px; }
+    .page-heading { flex-direction: column; align-items: flex-start; }
+}

@@ -25,6 +25,7 @@ urlpatterns = [
     path('practice/', views.practice, name='practice'),
     path('dictionary/', views.dictionary, name='dictionary'),
     path('profile/', views.profile, name='profile'),
+    path('login/', views.login_view, name='login'),
     path('register/', views.register, name='register'),
     path('chapter/<int:chapter_num>/', views.chapter, name='chapter'),
     path('api/asl-video/', views.asl_video_api, name='asl_video_api'),
