@@ -20,6 +20,33 @@
         </div>
 
         <section id="profile" class="profile-shell" aria-label="Profile">
+            {% if not user.is_authenticated %}
+            <header class="profile-top" aria-label="Profile summary">
+                <div class="identity">
+                    <div class="avatar" aria-hidden="true">
+                        <span class="avatar-initials">?</span>
+                    </div>
+                    <div class="identity-text">
+                        <h2>You're not registered</h2>
+                        <p class="identity-sub">Please register to access your profile.</p>
+                    </div>
+                </div>
+                <div class="top-actions" aria-label="Profile actions">
+                    <a class="pill" href="{% url 'register' %}">Register here</a>
+                </div>
+            </header>
+
+            <div class="content-grid" aria-label="Profile sections">
+                <article class="card is-credentials" aria-label="Register">
+                    <h3>Get Started</h3>
+                    <p class="card-desc">Create your account to save progress and track achievements.</p>
+                    <div class="card-actions">
+                        <a class="btn" href="{% url 'register' %}">Open register page</a>
+                    </div>
+                </article>
+            </div>
+
+            {% else %}
             <header class="profile-top" aria-label="Profile summary">
                 <div class="identity">
                     <div class="avatar" aria-hidden="true">
@@ -70,6 +97,7 @@
                     </div>
                 </article>
             </div>
+            {% endif %}
         </section>
     </main>
     <nav class="bottom-nav" aria-label="Primary">

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <title>Register</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/register.css' %}">
+</head>
+<body>
+    <main>
+        <div class="page-heading">
+            <div class="title-block">
+                <h1>Create Account</h1>
+                <p>Register to unlock your profile and achievements.</p>
+            </div>
+            <a class="pill" href="{% url 'profile' %}" aria-label="Back to profile">Back</a>
+        </div>
+
+        <section class="register-shell" aria-label="Register">
+            <form method="post" class="form" novalidate>
+                {% csrf_token %}
+
+                <div class="field">
+                    <label for="username">Username</label>
+                    <input id="username" name="username" type="text" autocomplete="username" value="{{ values.username|default:'' }}" required>
+                    {% if errors.username %}<p class="error">{{ errors.username }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="email">Email</label>
+                    <input id="email" name="email" type="email" autocomplete="email" value="{{ values.email|default:'' }}" required>
+                    {% if errors.email %}<p class="error">{{ errors.email }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="new-password" required>
+                    {% if errors.password %}<p class="error">{{ errors.password }}</p>{% endif %}
+                </div>
+
+                <div class="field">
+                    <label for="confirm_password">Confirm password</label>
+                    <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required>
+                    {% if errors.confirm_password %}<p class="error">{{ errors.confirm_password }}</p>{% endif %}
+                </div>
+
+                <button class="btn" type="submit">Register</button>
+                <p class="hint">Already registered? For now, registration auto-logs you in.</p>
+            </form>
+        </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Primary">
+        <a href="{% url 'level' %}">Level Page</a>
+        <a href="{% url 'practice' %}">Practice Page</a>
+        <a href="{% url 'home' %}">Home Page</a>
+        <a href="{% url 'dictionary' %}">Dictionary Page</a>
+        <a href="{% url 'profile' %}">Profile</a>
+    </nav>
+
+    <script src="{% static 'js/register.js' %}" defer></script>
+</body>
+</html>

@@ -5,6 +5,8 @@ from urllib import error, request as urlrequest
 from django.shortcuts import render
 from django.template.loader import select_template
 from django.http import JsonResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 
 
 def _fetch_definitions(word: str):
@@ -186,6 +188,56 @@ def chapter(request, chapter_num):
 
 
 def profile(request):
+    return render(request, 'profile.html')
+
+
+def register(request):
+    if request.method == 'GET':
+        return render(request, 'register.html')
+
+    username = (request.POST.get('username') or '').strip()
+    email = (request.POST.get('email') or '').strip()
+    password = request.POST.get('password') or ''
+    confirm_password = request.POST.get('confirm_password') or ''
+
+    errors = {}
+
+    if not username:
+        errors['username'] = 'Username is required.'
+    elif len(username) < 3:
+        errors['username'] = 'Username must be at least 3 characters.'
+    elif User.objects.filter(username=username).exists():
+        errors['username'] = 'That username is already taken.'
+
+    if not email:
+        errors['email'] = 'Email is required.'
+    elif User.objects.filter(email=email).exists():
+        errors['email'] = 'That email is already registered.'
+
+    if not password:
+        errors['password'] = 'Password is required.'
+    elif len(password) < 6:
+        errors['password'] = 'Password must be at least 6 characters.'
+
+    if password != confirm_password:
+        errors['confirm_password'] = 'Passwords do not match.'
+
+    if errors:
+        return render(
+            request,
+            'register.html',
+            {
+                'errors': errors,
+                'values': {'username': username, 'email': email},
+            },
+        )
+
+    User.objects.create_user(username=username, email=email, password=password)
+
+    user = authenticate(request, username=username, password=password)
+    if user is not None:
+        login(request, user)
+
     return render(request, 'profile.html')
 
 
