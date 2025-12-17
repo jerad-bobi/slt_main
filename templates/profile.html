@@ -4,12 +4,73 @@
     {% load static %}
     <meta charset="UTF-8">
     <title>Profile Page</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 </head>
 <body>
     <main>
-        <h1>Profile Page</h1>
-        <p>This is the Profile page.</p>
+        <div class="page-heading">
+            <div class="title-block">
+                <h1>Your Profile</h1>
+                <p>Your learning overview, shortcuts, and progress at a glance.</p>
+            </div>
+            <a class="pill" href="#profile" aria-label="Jump to profile content">View</a>
+        </div>
+
+        <section id="profile" class="profile-shell" aria-label="Profile">
+            <header class="profile-top" aria-label="Profile summary">
+                <div class="identity">
+                    <div class="avatar" aria-hidden="true">
+                        <span class="avatar-initials">SL</span>
+                    </div>
+                    <div class="identity-text">
+                        <h2>Student</h2>
+                        <p class="identity-sub">student@example.com</p>
+                    </div>
+                </div>
+                <div class="top-actions" aria-label="Profile actions">
+                    <span class="tag" aria-label="Streak">Streak: 0 days</span>
+                </div>
+            </header>
+
+            <div class="content-grid" aria-label="Profile sections">
+                <article class="card is-learning" aria-label="Learning path">
+                    <h3>Learning Path</h3>
+                    <p class="card-desc">Your chapters and levels live here.</p>
+                    <div class="kv">
+                        <div class="kv-row"><span class="k">Chapters</span><span class="v">0 / 8</span></div>
+                        <div class="kv-row"><span class="k">Levels</span><span class="v">0 / 40</span></div>
+                        <div class="kv-row"><span class="k">Next up</span><span class="v">Chapter 1</span></div>
+                    </div>
+                    <div class="card-actions">
+                        <a class="btn" href="{% url 'level' %}">Open learning path</a>
+                    </div>
+                </article>
+
+                <article class="card is-achievements" aria-label="Achievements">
+                    <h3>Achievements</h3>
+                    <p class="card-desc">Earn badges by keeping your streak alive.</p>
+                    <div class="badges" role="list" aria-label="Badges">
+                        <span class="badge" role="listitem">First Lesson</span>
+                        <span class="badge" role="listitem">Explorer</span>
+                        <span class="badge" role="listitem">Consistency</span>
+                        <span class="badge" role="listitem">Dictionary Pro</span>
+                    </div>
+                </article>
+
+                <article class="card is-credentials" aria-label="Credentials">
+                    <h3>Credentials</h3>
+                    <p class="card-desc">Basic login details (display only).</p>
+                    <div class="kv">
+                        <div class="kv-row"><span class="k">Username</span><span class="v">Student</span></div>
+                        <div class="kv-row"><span class="k">Email</span><span class="v">student@example.com</span></div>
+                        <div class="kv-row"><span class="k">Password</span><span class="v">••••••••</span></div>
+                    </div>
+                </article>
+            </div>
+        </section>
     </main>
     <nav class="bottom-nav" aria-label="Primary">
         <a href="{% url 'level' %}">Level Page</a>
@@ -18,5 +79,7 @@
         <a href="{% url 'dictionary' %}">Dictionary Page</a>
         <a href="{% url 'profile' %}">Profile</a>
     </nav>
+
+    <script src="{% static 'js/profile.js' %}" defer></script>
 </body>
 </html>
